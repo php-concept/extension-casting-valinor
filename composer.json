@@ -1,7 +1,6 @@
 {
     "name": "php-concept/extension-casting-valinor",
     "description": "Concept Casting extension — Valinor caster and typed route parameter resolving",
-    "version": "1.0.0",
     "type": "library",
     "license": "MIT",
     "autoload": {
