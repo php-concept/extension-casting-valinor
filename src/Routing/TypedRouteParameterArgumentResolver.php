@@ -5,7 +5,7 @@ namespace Concept\Extensions\CastingValinor\Routing;
 use Concept\Core\Http\Contracts\ArgumentResolverInterface;
 use Concept\Extensions\CastingValinor\Contracts\CasterInterface;
 use Concept\Extensions\CastingValinor\Exceptions\CastingException;
-use Psr\Container\ContainerInterface;
+use Closure;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionNamedType;
 use ReflectionParameter;
@@ -13,11 +13,14 @@ use RuntimeException;
 
 final class TypedRouteParameterArgumentResolver implements ArgumentResolverInterface
 {
-    private const string ERR_CASTER_NOT_REGISTERED = 'CasterInterface is not registered in the container.';
+    private const string ERR_CASTER_NOT_REGISTERED = 'CasterInterface factory did not return a CasterInterface instance.';
 
     private ?CasterInterface $caster = null;
 
-    public function __construct(private readonly ContainerInterface $container) {}
+    /** @param Closure(): CasterInterface $casterFactory */
+    public function __construct(
+        private readonly Closure $casterFactory,
+    ) {}
 
     public function supports(ReflectionParameter $parameter, array $vars): bool
     {
@@ -53,7 +56,8 @@ final class TypedRouteParameterArgumentResolver implements ArgumentResolverInter
     private function caster(): CasterInterface
     {
         if ($this->caster === null) {
-            $caster = $this->container->get(CasterInterface::class);
+            $casterFactory = $this->casterFactory;
+            $caster = $casterFactory();
             if (!$caster instanceof CasterInterface) {
                 throw new RuntimeException(self::ERR_CASTER_NOT_REGISTERED);
             }
