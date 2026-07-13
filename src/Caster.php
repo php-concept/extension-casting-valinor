@@ -18,19 +18,22 @@ final class Caster implements CasterInterface
      * @param list<class-string> $transformerClasses
      */
     public function __construct(
-        string $cacheDirectory,
         array $transformerClasses = [],
+        ?string $cacheDirectory = null,
         bool $debug = false,
     ) {
-        $cache = new FileSystemCache($cacheDirectory);
-        if ($debug) {
-            $cache = new FileWatchingCache($cache);
-        }
-
         $builder = (new MapperBuilder())
-            ->withCache($cache)
             ->allowScalarValueCasting()
             ->allowSuperfluousKeys();
+
+        if ($cacheDirectory !== null && $cacheDirectory !== '') {
+            $cache = new FileSystemCache($cacheDirectory);
+            if ($debug) {
+                $cache = new FileWatchingCache($cache);
+            }
+
+            $builder = $builder->withCache($cache);
+        }
 
         foreach ($transformerClasses as $transformerClass) {
             $builder = $builder->registerConverter($transformerClass);

@@ -15,8 +15,8 @@ final class CastingServiceProvider extends AbstractServiceProvider
      * @param list<class-string> $transformerClasses
      */
     public function __construct(
-        private readonly string $cacheDirectory,
         private readonly array $transformerClasses = [],
+        private readonly ?string $cacheDirectory = null,
         private readonly bool $debug = false,
     ) {}
 
@@ -36,8 +36,8 @@ final class CastingServiceProvider extends AbstractServiceProvider
             ));
 
             return new Caster(
-                $this->cacheDirectory,
                 $this->transformerClasses,
+                $this->cacheDirectory,
                 $this->debug,
             );
         })->setShared(true);
